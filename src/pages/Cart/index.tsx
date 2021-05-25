@@ -5,8 +5,8 @@ import {
   MdRemoveCircleOutline,
 } from 'react-icons/md';
 
-// import { useCart } from '../../hooks/useCart';
-// import { formatPrice } from '../../util/format';
+import { useCart } from '../../hooks/useCart';
+import { formatPrice } from '../../util/format';
 import { Container, ProductTable, Total } from './styles';
 
 interface Product {
@@ -18,28 +18,31 @@ interface Product {
 }
 
 const Cart = (): JSX.Element => {
-  // const { cart, removeProduct, updateProductAmount } = useCart();
+  const { cart, removeProduct, updateProductAmount } = useCart();
 
-  // const cartFormatted = cart.map(product => ({
-  //   // TODO
-  // }))
-  // const total =
-  //   formatPrice(
-  //     cart.reduce((sumTotal, product) => {
-  //       // TODO
-  //     }, 0)
-  //   )
+  const cartFormatted = cart.map(product => ({
+    // TODO
+    ...product,
+    formattedPrice: formatPrice(product.price),
+    subTotal: formatPrice(product.price * product.amount)
+  }))
+  const total =
+    formatPrice(
+      cart.reduce((sumTotal, product) => {
+        return sumTotal + product.amount * product.price
+      }, 0)
+    )
 
   function handleProductIncrement(product: Product) {
-    // TODO
+    updateProductAmount({ productId: product.id, amount: product.amount + 1})
   }
 
   function handleProductDecrement(product: Product) {
-    // TODO
+    updateProductAmount({ productId: product.id, amount: product.amount - 1})
   }
 
   function handleRemoveProduct(productId: number) {
-    // TODO
+    removeProduct(productId);
   }
 
   return (
@@ -55,13 +58,14 @@ const Cart = (): JSX.Element => {
           </tr>
         </thead>
         <tbody>
-          <tr data-testid="product">
+          {cartFormatted.map(cart => (
+            <tr data-testid="product" key={cart.id}>
             <td>
-              <img src="https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg" alt="Tênis de Caminhada Leve Confortável" />
+              <img src={cart.image} alt={cart.title} />
             </td>
             <td>
-              <strong>Tênis de Caminhada Leve Confortável</strong>
-              <span>R$ 179,90</span>
+              <strong>{cart.title}</strong>
+              <span>{cart.formattedPrice}</span>
             </td>
             <td>
               <div>
@@ -77,7 +81,7 @@ const Cart = (): JSX.Element => {
                   type="text"
                   data-testid="product-amount"
                   readOnly
-                  value={2}
+                  value={cart.amount}
                 />
                 <button
                   type="button"
@@ -89,7 +93,7 @@ const Cart = (): JSX.Element => {
               </div>
             </td>
             <td>
-              <strong>R$ 359,80</strong>
+              <strong>{cart.subTotal}</strong>
             </td>
             <td>
               <button
@@ -101,6 +105,8 @@ const Cart = (): JSX.Element => {
               </button>
             </td>
           </tr>
+          ))}
+          
         </tbody>
       </ProductTable>
 
@@ -109,7 +115,7 @@ const Cart = (): JSX.Element => {
 
         <Total>
           <span>TOTAL</span>
-          <strong>R$ 359,80</strong>
+          <strong>{total}</strong>
         </Total>
       </footer>
     </Container>
